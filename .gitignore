@@ -19,6 +19,7 @@ task.md
 
 # Local/private key material
 *.key
+.deployment-keys/
 
 # Local agent / AI tooling
 .codex/
@@ -27,3 +28,4 @@ implementation.md
 
 # GitHub modernization/agent tooling
 .github/modernize/
+.vercel
