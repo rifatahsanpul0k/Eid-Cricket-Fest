@@ -6,5 +6,10 @@ export async function expectProtectedRedirect(page: Page, path: string) {
 }
 
 export async function expectPageHeading(page: Page, name: string | RegExp) {
-  await expect(page.getByRole("heading", { name })).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name,
+      exact: typeof name === "string",
+    })
+  ).toBeVisible();
 }

@@ -725,6 +725,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/bootstrap-admin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Bootstrap first admin account */
+        post: operations["bootstrapAdmin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tournaments/{tournamentId}/editions/{editionId}/status": {
         parameters: {
             query?: never;
@@ -949,6 +966,23 @@ export interface paths {
         patch: operations["correctDelivery"];
         trace?: never;
     };
+    "/api/v1/admin/users/{userId}/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a user's operational roles */
+        patch: operations["updateRoles"];
+        trace?: never;
+    };
     "/api/v1/users/scorers": {
         parameters: {
             query?: never;
@@ -1131,6 +1165,23 @@ export interface paths {
         };
         /** Get draft pool */
         get: operations["getDraftPool"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tournament-editions/{editionId}/awards/player-options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List award recipient options */
+        get: operations["playerOptions"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1377,15 +1428,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/tournament-editions/{editionId}/awards/player-options": {
+    "/api/v1/admin/users": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List award recipient options */
-        get: operations["playerOptions"];
+        /** Search users for role management */
+        get: operations["search"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1394,17 +1445,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/auth/bootstrap-admin": {
+    "/api/v1/admin/users/{userId}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Get a user for role management */
+        get: operations["get"];
         put?: never;
-        /** Bootstrap first admin account */
-        post: operations["bootstrapAdmin"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1469,16 +1520,21 @@ export interface components {
             lossPoints?: number;
             /** @enum {string} */
             status?: "DRAFT" | "REGISTRATION_OPEN" | "REGISTRATION_CLOSED" | "DRAFTING" | "SCHEDULED" | "ONGOING" | "COMPLETED" | "CANCELLED";
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
             champion?: components["schemas"]["TournamentEditionTeamResponse"];
             runnerUp?: components["schemas"]["TournamentEditionTeamResponse"];
             /** Format: int64 */
             finalMatchId?: number;
             /** Format: date-time */
             completedAt?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        TournamentEditionTeamResponse: {
+            /** Format: int64 */
+            tournamentTeamId?: number;
+            name?: string;
         };
         SubmitPlayingXiRequest: {
             registrationIds: number[];
@@ -1783,10 +1839,10 @@ export interface components {
             /** Format: int64 */
             playerId?: number;
             playerName?: string;
-            notes?: string;
             /** Format: int64 */
             tournamentTeamId?: number;
             teamName?: string;
+            notes?: string;
         };
         CreateTeamRequest: {
             name: string;
@@ -1991,6 +2047,13 @@ export interface components {
             identifier: string;
             password: string;
         };
+        BootstrapAdminRequest: {
+            bootstrapToken: string;
+            displayName: string;
+            /** Format: email */
+            email: string;
+            password: string;
+        };
         UpdateTournamentEditionStatusRequest: {
             /** @enum {string} */
             status: "DRAFT" | "REGISTRATION_OPEN" | "REGISTRATION_CLOSED" | "DRAFTING" | "SCHEDULED" | "ONGOING" | "COMPLETED" | "CANCELLED";
@@ -2056,6 +2119,16 @@ export interface components {
             wicket?: components["schemas"]["WicketRequest"];
             commentary?: string;
             reason: string;
+        };
+        UpdateUserRolesRequest: {
+            roles: ("PLAYER" | "SCORER" | "ORGANIZER" | "ADMIN")[];
+        };
+        AdminUserResponse: {
+            /** Format: int64 */
+            userId?: number;
+            displayName?: string;
+            email?: string;
+            roles?: ("PLAYER" | "SCORER" | "ORGANIZER" | "ADMIN")[];
         };
         UserOptionResponse: {
             /** Format: int64 */
@@ -2225,6 +2298,16 @@ export interface components {
             categoryId?: number;
             categoryCode?: string;
             categoryName?: string;
+        };
+        AwardPlayerOptionResponse: {
+            /** Format: int64 */
+            registrationId?: number;
+            /** Format: int64 */
+            playerId?: number;
+            playerName?: string;
+            /** Format: int64 */
+            tournamentTeamId?: number;
+            teamName?: string;
         };
         ScorerMatchResponse: {
             match?: components["schemas"]["MatchResponse"];
@@ -2653,27 +2736,20 @@ export interface components {
             battingStyle?: string;
             bowlingStyle?: string;
         };
-        TournamentEditionTeamResponse: {
+        PageResponseAdminUserResponse: {
+            content?: components["schemas"]["AdminUserResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
             /** Format: int64 */
-            tournamentTeamId?: number;
-            name?: string;
-        };
-        AwardPlayerOptionResponse: {
-            /** Format: int64 */
-            registrationId?: number;
-            /** Format: int64 */
-            playerId?: number;
-            playerName?: string;
-            /** Format: int64 */
-            tournamentTeamId?: number;
-            teamName?: string;
-        };
-        BootstrapAdminRequest: {
-            bootstrapToken: string;
-            displayName: string;
-            /** Format: email */
-            email: string;
-            password: string;
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            first?: boolean;
+            last?: boolean;
+            hasNext?: boolean;
+            hasPrevious?: boolean;
         };
     };
     responses: never;
@@ -3968,6 +4044,30 @@ export interface operations {
             };
         };
     };
+    bootstrapAdmin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BootstrapAdminRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AuthResponse"];
+                };
+            };
+        };
+    };
     updateEditionStatus: {
         parameters: {
             query?: never;
@@ -4291,6 +4391,32 @@ export interface operations {
             };
         };
     };
+    updateRoles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateUserRolesRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminUserResponse"];
+                };
+            };
+        };
+    };
     getScorers: {
         parameters: {
             query?: never;
@@ -4551,6 +4677,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["DraftPoolPlayerResponse"][];
+                };
+            };
+        };
+    };
+    playerOptions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                editionId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AwardPlayerOptionResponse"][];
                 };
             };
         };
@@ -4855,12 +5003,38 @@ export interface operations {
             };
         };
     };
-    playerOptions: {
+    search: {
+        parameters: {
+            query?: {
+                q?: string;
+                page?: number;
+                size?: number;
+                sortBy?: string;
+                direction?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseAdminUserResponse"];
+                };
+            };
+        };
+    };
+    get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                editionId: number;
+                userId: number;
             };
             cookie?: never;
         };
@@ -4872,31 +5046,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["AwardPlayerOptionResponse"][];
-                };
-            };
-        };
-    };
-    bootstrapAdmin: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["BootstrapAdminRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["AuthResponse"];
+                    "*/*": components["schemas"]["AdminUserResponse"];
                 };
             };
         };

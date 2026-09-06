@@ -28,3 +28,7 @@ export function hasScorerAccess(session?: Session) {
     session?.user?.roles?.some((role) => scorerRoles.has(role))
   );
 }
+
+export function hasAdminAccess(session?: Session) {
+  return Boolean(session?.user?.roles?.includes("ADMIN"));
+}

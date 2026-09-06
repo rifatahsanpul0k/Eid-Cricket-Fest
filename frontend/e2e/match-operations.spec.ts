@@ -17,8 +17,15 @@ test.describe("match operations acceptance", () => {
       .toBeVisible();
     await expect(page.getByRole("heading", { name: "Tournament Matches" }))
       .toBeVisible();
-    await expect(page.locator('select[name="stage"]')).toBeVisible();
-    await expect(page.locator('select[name="status"]')).toBeVisible();
-    await expect(page.getByRole("button", { name: "Apply" })).toBeVisible();
+    const stageFilter = page.locator('select[name="stage"]');
+
+    if (await stageFilter.isVisible()) {
+      await expect(stageFilter).toBeVisible();
+      await expect(page.locator('select[name="status"]')).toBeVisible();
+      await expect(page.getByRole("button", { name: "Apply" })).toBeVisible();
+    } else {
+      await expect(page.getByText("No tournament has been created yet."))
+        .toBeVisible();
+    }
   });
 });

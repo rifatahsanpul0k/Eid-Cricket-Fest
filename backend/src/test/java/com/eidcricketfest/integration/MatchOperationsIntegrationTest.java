@@ -492,6 +492,46 @@ class MatchOperationsIntegrationTest
     }
 
     @Test
+    void completedFinalCanBeSupersededByFreshFinalRematch()
+            throws Exception {
+
+        TestTokens admin = admin();
+        Long originalFinalId = createTournamentMatch("COMPLETED", "FINAL");
+
+        mockMvc.perform(
+                        post(
+                                "/api/v1/matches/{matchId}/operations/rematch",
+                                originalFinalId
+                        )
+                                .header("Authorization", bearer(admin))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonMapper.writeValueAsString(
+                                        Map.of(
+                                                "reason",
+                                                "Official final under review",
+                                                "scheduledAt",
+                                                "2026-12-20T04:00:00Z"
+                                        )
+                                ))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.stage").value("FINAL"))
+                .andExpect(jsonPath("$.rematchOfMatchId")
+                        .value(originalFinalId));
+
+        assertThat(
+                jdbcTemplate.queryForObject(
+                        "SELECT result_status FROM matches WHERE id = ?",
+                        String.class,
+                        originalFinalId
+                )
+        ).isEqualTo("SUPERSEDED");
+
+        assertThat(auditCount(originalFinalId, "ORDER_REMATCH"))
+                .isEqualTo(1L);
+    }
+
+    @Test
     void rematchClearsUnstartedKnockoutDependentButRejectsStartedDependent()
             throws Exception {
 

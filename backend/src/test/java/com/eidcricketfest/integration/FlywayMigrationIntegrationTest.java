@@ -23,7 +23,7 @@ class FlywayMigrationIntegrationTest
 
         assertThat(
                 current.getVersion().getVersion()
-        ).isEqualTo("21");
+        ).isEqualTo("23");
     }
 
     @Test

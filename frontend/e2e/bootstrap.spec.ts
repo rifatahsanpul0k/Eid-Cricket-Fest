@@ -21,7 +21,7 @@ test.describe("fresh install bootstrap", () => {
 
     await test.step("admin login succeeds", async () => {
       await loginViaUi(page);
-      await expectPageHeading(page, "Dashboard");
+      await expectPageHeading(page, "Tournament Dashboard");
       await expect(page.getByText("Administrator").first()).toBeVisible();
     });
 

@@ -7,6 +7,7 @@ import { getSession } from "@/lib/auth/session";
 import { searchOrganizerPayments, searchOrganizerRegistrations } from "@/lib/dashboard/api";
 import {
   getDashboardRoleLabel,
+  hasAdminAccess,
   hasOrganizerAccess,
 } from "@/lib/dashboard/roles";
 import { getCurrentEditionData } from "@/lib/tournament/current-edition";
@@ -67,6 +68,15 @@ export default async function DashboardPage() {
         </DashboardSection>
 
         <DashboardSection title="Player Management">
+          {hasAdminAccess(session) ? (
+            <DashboardCard
+              actionLabel="Manage users"
+              description="Grant or revoke scorer and organizer access."
+              eyebrow="Access control"
+              href="/dashboard/users"
+              label="Users"
+            />
+          ) : null}
           <DashboardCard
             actionLabel="Review registrations"
             count={registrations?.ok ? registrations.data.totalElements : undefined}

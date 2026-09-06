@@ -59,6 +59,9 @@ public class SecurityConfig {
                                 "/api/v1/auth/logout"
                         ).permitAll()
 
+                        .requestMatchers("/api/v1/admin/**")
+                        .hasRole("ADMIN")
+
                         // =========================
                         // SWAGGER / OPENAPI
                         // =========================
